@@ -36,6 +36,7 @@ SCRIPTSDIR?=		scripts
 PACKAGESDIR?=		packages
 CUSTOMFILESDIR?=	customfiles
 CUSTOMSCRIPTSDIR?=	customscripts
+CUSTOMPOSTPKGSCRIPTS?=	custompostpkgscripts
 TOOLSDIR?=		tools
 PRUNELIST?=		${TOOLSDIR}/prunelist
 KERN_EXCLUDE?=		${TOOLSDIR}/kern_exclude
@@ -354,6 +355,14 @@ ${WRKDIR}/.packages_done:
 		PKG_CACHEDIR=${WRKDIR}/pkgcache \
 		${PKG} -r ${_DESTDIR} install `${CAT} $${_PKGS}`; \
 		fi;
+.  if exists(${CUSTOMPOSTPKGSCRIPTSDIR})
+	@echo -n "Running post-package scripts ..."
+	@for SCRIPT in `find ${CUSTOMPOSTPKGSCRIPTSDIR} -type f`; do \
+		chmod +x $$SCRIPT; \
+		${CUSTOMSCRIPTENV} $$SCRIPT; \
+	done
+	@echo " done"
+.  endif	
 	${_v}${TOUCH} ${WRKDIR}/.packages_done
 
 packages-mini: packages ${WRKDIR}/.packages_mini_done
